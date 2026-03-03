@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Systematic Synthetic Phonics Tutor</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --good: #0f766e;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    h1,h2,h3 { margin-top: 0; }
+    .muted { color: var(--muted); }
+    .row { display: grid; grid-template-columns: 180px 1fr; gap: .75rem; align-items: center; margin-bottom: .5rem; }
+    .row label { font-size: .92rem; }
+    input[type="text"] { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: .55rem .6rem; font-size: 1rem; }
+    button { border: 0; border-radius: 8px; padding: .55rem .8rem; color: #fff; background: var(--accent); cursor: pointer; }
+    button.secondary { background: #4b5563; }
+    button.warning { background: #dc2626; }
+    .results { border-top: 1px dashed var(--border); margin-top: .75rem; padding-top: .75rem; }
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+    ul.inline { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+    ul.inline li { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: .2rem .65rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Systematic Synthetic Phonics Tutor</h1>
+      <p class="muted">Learn reading and writing in explicit, cumulative phonics steps.</p>
+      <p id="progressText"><strong>Progress:</strong> 0 / 5 lessons complete</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button id="startLessonBtn">Continue Course</button>
+        <button id="reviewBtn" class="secondary">Cumulative Review</button>
+        <button id="resetBtn" class="warning">Reset Progress</button>
+      </div>
+    </section>
+
+    <section class="card" id="lessonCard">
+      <h2 id="lessonTitle">Lesson</h2>
+      <p><strong>New sounds:</strong> <span id="lessonSounds"></span></p>
+
+      <h3>1) Sound Check</h3>
+      <div id="soundChecks"></div>
+
+      <h3>2) Reading (Blend Sounds)</h3>
+      <div id="readChecks"></div>
+
+      <h3>3) Spelling (Segment Sounds)</h3>
+      <div id="spellChecks"></div>
+
+      <h3>4) Sentence Practice</h3>
+      <p id="sentencePrompt"></p>
+      <div class="row">
+        <label for="sentenceInput">Sentence</label>
+        <input id="sentenceInput" type="text" placeholder="Type the sentence" />
+      </div>
+
+      <button id="gradeBtn">Check Lesson</button>
+      <button id="nextBtn" class="secondary" style="display:none;">Next Lesson</button>
+
+      <div class="results" id="results"></div>
+    </section>
+
+    <section class="card" id="reviewCard" style="display:none;"></section>
+  </div>
+
+  <script>
+    const lessons = [
+      { name: "Step 1: s, a, t, p", sounds: ["s", "a", "t", "p"], readWords: ["sat", "tap", "pat", "at"], spellWords: ["sat", "tap", "pat", "sap"], sentence: "Pat sat." },
+      { name: "Step 2: i, n, m, d", sounds: ["i", "n", "m", "d"], readWords: ["pin", "dip", "man", "sad", "din"], spellWords: ["pin", "dip", "man", "dim"], sentence: "Sam and Pat sit." },
+      { name: "Step 3: g, o, c, k", sounds: ["g", "o", "c", "k"], readWords: ["dog", "cot", "sock", "can", "kid"], spellWords: ["dog", "cot", "kid", "sock"], sentence: "The dog can sit." },
+      { name: "Step 4: ck, e, u, r", sounds: ["ck", "e", "u", "r"], readWords: ["duck", "red", "rock", "sun", "tuck"], spellWords: ["duck", "red", "sun", "rock"], sentence: "The duck is red." },
+      { name: "Step 5: h, b, f, l", sounds: ["h", "b", "f", "l"], readWords: ["bell", "flag", "hill", "bat", "fun"], spellWords: ["bell", "bat", "hill", "fun"], sentence: "Ben has a red flag." }
+    ];
+
+    const STORAGE_KEY = "phonics_completed";
+    const progressText = document.getElementById("progressText");
+    const lessonTitle = document.getElementById("lessonTitle");
+    const lessonSounds = document.getElementById("lessonSounds");
+    const soundChecks = document.getElementById("soundChecks");
+    const readChecks = document.getElementById("readChecks");
+    const spellChecks = document.getElementById("spellChecks");
+    const sentencePrompt = document.getElementById("sentencePrompt");
+    const sentenceInput = document.getElementById("sentenceInput");
+    const results = document.getElementById("results");
+    const reviewCard = document.getElementById("reviewCard");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function safeGetCompleted() {
+      try {
+        const parsed = Number.parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+        if (Number.isNaN(parsed) || parsed < 0) return 0;
+        return Math.min(parsed, lessons.length);
+      } catch (_err) {
+        return 0;
+      }
+    }
+
+    function safeSetCompleted(value) {
+      try { localStorage.setItem(STORAGE_KEY, String(value)); } catch (_err) { /* no-op */ }
+    }
+
+    function normalize(text) { return String(text || "").trim().toLowerCase(); }
+
+    function renderProgress() {
+      const completed = safeGetCompleted();
+      progressText.innerHTML = `<strong>Progress:</strong> ${completed} / ${lessons.length} lessons complete`;
+    }
+
+    function makeInputRow(label, id) {
+      const div = document.createElement("div");
+      div.className = "row";
+      const labelEl = document.createElement("label");
+      labelEl.setAttribute("for", id);
+      labelEl.textContent = label;
+      const inputEl = document.createElement("input");
+      inputEl.type = "text";
+      inputEl.id = id;
+      inputEl.placeholder = "Type answer";
+      div.append(labelEl, inputEl);
+      return div;
+    }
+
+    function loadLesson() {
+      const completed = safeGetCompleted();
+      results.innerHTML = "";
+      nextBtn.style.display = "none";
+      reviewCard.style.display = "none";
+
+      if (completed >= lessons.length) {
+        lessonTitle.textContent = "All lessons complete 🎉";
+        lessonSounds.textContent = "-";
+        soundChecks.innerHTML = "<p class='good'>Excellent work. You completed the full sequence.</p>";
+        readChecks.innerHTML = "";
+        spellChecks.innerHTML = "";
+        sentencePrompt.textContent = "Use cumulative review to keep practicing.";
+        sentenceInput.value = "";
+        return;
+      }
+
+      const lesson = lessons[completed];
+      lessonTitle.textContent = lesson.name;
+      lessonSounds.textContent = lesson.sounds.join(", ");
+      sentencePrompt.textContent = `Type this sentence exactly: ${lesson.sentence}`;
+      sentenceInput.value = "";
+      soundChecks.innerHTML = "";
+      readChecks.innerHTML = "";
+      spellChecks.innerHTML = "";
+
+      lesson.sounds.forEach((sound, idx) => soundChecks.appendChild(makeInputRow(`Type sound '${sound}'`, `sound-${idx}`)));
+      lesson.readWords.forEach((word, idx) => readChecks.appendChild(makeInputRow(`Read and type '${word}'`, `read-${idx}`)));
+      lesson.spellWords.forEach((word, idx) => spellChecks.appendChild(makeInputRow(`Spell '${word}'`, `spell-${idx}`)));
+    }
+
+    function gradeLesson() {
+      const completed = safeGetCompleted();
+      if (completed >= lessons.length) {
+        results.innerHTML = "<p class='good'>You already completed all lessons.</p>";
+        return;
+      }
+
+      const lesson = lessons[completed];
+      let soundScore = 0;
+      lesson.sounds.forEach((sound, idx) => {
+        if (normalize(document.getElementById(`sound-${idx}`)?.value) === sound) soundScore += 1;
+      });
+
+      let readScore = 0;
+      lesson.readWords.forEach((word, idx) => {
+        if (normalize(document.getElementById(`read-${idx}`)?.value) === word) readScore += 1;
+      });
+
+      let spellScore = 0;
+      lesson.spellWords.forEach((word, idx) => {
+        if (normalize(document.getElementById(`spell-${idx}`)?.value) === word) spellScore += 1;
+      });
+
+      const sentenceOk = normalize(sentenceInput.value) === normalize(lesson.sentence);
+      const total = lesson.sounds.length + lesson.readWords.length + lesson.spellWords.length + 1;
+      const earned = soundScore + readScore + spellScore + (sentenceOk ? 1 : 0);
+      const passed = earned >= Math.ceil(total * 0.7);
+
+      results.innerHTML = `
+        <p><strong>Sound score:</strong> ${soundScore}/${lesson.sounds.length}</p>
+        <p><strong>Reading score:</strong> ${readScore}/${lesson.readWords.length}</p>
+        <p><strong>Spelling score:</strong> ${spellScore}/${lesson.spellWords.length}</p>
+        <p><strong>Sentence:</strong> ${sentenceOk ? "Correct" : "Try again"}</p>
+        <p><strong>Lesson score:</strong> ${earned}/${total}</p>
+        <p class="${passed ? "good" : "warn"}"><strong>Result:</strong> ${passed ? "PASS" : "REVIEW"} — ${passed ? "ready for next step" : "repeat this lesson"}.</p>
+      `;
+
+      if (passed) {
+        safeSetCompleted(completed + 1);
+        renderProgress();
+        nextBtn.style.display = "inline-block";
+      }
+    }
+
+    function showReview() {
+      const completed = safeGetCompleted();
+      reviewCard.style.display = "block";
+      if (completed === 0) {
+        reviewCard.innerHTML = "<h2>Cumulative Review</h2><p class='warn'>No completed lessons yet. Start Step 1.</p>";
+        return;
+      }
+      const words = [];
+      lessons.slice(0, completed).forEach((lesson) => words.push(...lesson.readWords.slice(0, 2)));
+      reviewCard.innerHTML = `<h2>Cumulative Review</h2><p>Read these words aloud, then write at least 3 of them:</p><ul class="inline">${words.map((w) => `<li>${w}</li>`).join("")}</ul>`;
+    }
+
+    document.getElementById("startLessonBtn").addEventListener("click", loadLesson);
+    document.getElementById("gradeBtn").addEventListener("click", gradeLesson);
+    document.getElementById("reviewBtn").addEventListener("click", showReview);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      safeSetCompleted(0);
+      renderProgress();
+      loadLesson();
+      results.innerHTML = "<p class='bad'>Progress reset.</p>";
+    });
+    nextBtn.addEventListener("click", loadLesson);
+
+    renderProgress();
+    loadLesson();
+  </script>
+</body>
+</html>
