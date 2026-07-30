@@ -62,7 +62,7 @@
           <button>Start tutorial</button>
         </div>
         <div class="avatar-card card">
-          <div id="avatar" class="avatar woman hybrid visor"><span class="badge">00?</span></div>
+          <div id="avatar" class="avatar hybrid visor"><span class="badge">00?</span></div>
           <p id="avatarCaption">Preview updates after you start.</p>
         </div>
       </form>
@@ -82,14 +82,20 @@
           <div class="npc magenta" title="Dae Park"><span>Dae Park</span></div>
           <div class="npc red" title="Ren Sato 008"><span>Ren Sato 008</span></div>
           <div id="player" class="player"><span>You</span></div>
-          <div class="sensor">ID sensor</div>
-          <div class="mission-table">Mission HUD</div>
-          <div class="motorcycle">Motorcycle GPS</div>
+          <div class="hotspot sensor">ID sensor</div>
+          <div class="hotspot mission-table">Mission HUD</div>
+          <div class="hotspot armory">Training armory</div>
+          <div class="hotspot motorcycle">Motorcycle GPS</div>
+          <div class="hotspot document">Museum document</div>
+          <div class="hotspot tourist">Tourist obstacle</div>
+          <div class="hotspot exit">Free-roam gate</div>
+          <p id="worldCaption" class="world-caption">Current interaction: Meet handler.</p>
         </div>
         <aside class="mission-log card">
           <h2>Guided tutorial</h2>
           <p id="dialogue"></p>
-          <button id="nextStep">Continue</button>
+          <button id="stepAction">Perform step action</button>
+          <button id="nextStep">Continue without action</button>
           <button id="freeRoam" class="ghost">Skip to free roam</button>
         </aside>
       </section>
