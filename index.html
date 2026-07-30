@@ -77,19 +77,17 @@
       </div>
 
       <section class="world panel">
-        <div id="stage" class="stage hq">
-          <div class="npc yuna" title="Yuna Bond 003"><span>Yuna Bond 003</span></div>
-          <div class="npc magenta" title="Dae Park"><span>Dae Park</span></div>
-          <div class="npc red" title="Ren Sato 008"><span>Ren Sato 008</span></div>
+        <div id="stage" class="stage briefing">
+          <div class="location-plate"><strong id="locationName">Aether HQ Briefing Suite</strong></div>
+          <div id="stageEntities"></div>
           <div id="player" class="player"><span>You</span></div>
-          <div class="hotspot sensor">ID sensor</div>
-          <div class="hotspot mission-table">Mission HUD</div>
-          <div class="hotspot armory">Training armory</div>
-          <div class="hotspot motorcycle">Motorcycle GPS</div>
-          <div class="hotspot document">Museum document</div>
-          <div class="hotspot tourist">Tourist obstacle</div>
-          <div class="hotspot exit">Free-roam gate</div>
-          <p id="worldCaption" class="world-caption">Current interaction: Meet handler.</p>
+          <p id="worldCaption" class="world-caption">Use WASD, arrow keys, or the move buttons to explore.</p>
+          <div class="move-pad" aria-label="Movement controls">
+            <button data-move="0,-4">↑</button>
+            <button data-move="-4,0">←</button>
+            <button data-move="4,0">→</button>
+            <button data-move="0,4">↓</button>
+          </div>
         </div>
         <aside class="mission-log card">
           <h2>Guided tutorial</h2>
