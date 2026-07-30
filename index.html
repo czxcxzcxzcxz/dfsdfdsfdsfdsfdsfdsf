@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aether Agents: Civil Intrigue MMOG</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section class="hero panel">
+      <div>
+        <p class="eyebrow">2.5D HTML MMOG prototype • no official 007/MI6 imagery</p>
+        <h1>Aether Agents: Civil Intrigue</h1>
+        <p class="lede">Create an original field agent, authenticate into Aether HQ, train with Yuna Bond 003, and explore friendly everyday assignments in a photoreal-inspired spy world.</p>
+      </div>
+      <div class="status-card">
+        <span>Online shard</span>
+        <strong id="onlineCount">128 agents online</strong>
+        <small>Local demo account data is saved in this browser.</small>
+      </div>
+    </section>
+
+    <section id="auth" class="panel grid two">
+      <form id="createForm" class="card">
+        <h2>Create account</h2>
+        <label>Full name <input required name="fullName" autocomplete="name" /></label>
+        <label>Username <input required name="username" autocomplete="username" /></label>
+        <label>Password <input required name="password" type="password" autocomplete="new-password" minlength="4" /></label>
+        <button>Create and customize</button>
+      </form>
+      <form id="loginForm" class="card">
+        <h2>Log in</h2>
+        <label>Username <input required name="username" autocomplete="username" /></label>
+        <label>Password <input required name="password" type="password" autocomplete="current-password" /></label>
+        <button>Enter HQ</button>
+        <p id="authMessage" class="message"></p>
+      </form>
+    </section>
+
+    <section id="customize" class="panel hidden">
+      <h2>Visual agent customization</h2>
+      <p>Skin tone, hair color, and eye color are fixed: light-medium skin with very warm undertones, extremely black hair, and dark brown eyes.</p>
+      <form id="customForm" class="grid two">
+        <div class="card stack">
+          <label>Display name <input required name="displayName" value="Agent Nova" /></label>
+          <label>Agent gender
+            <select name="gender"><option>Woman</option><option>Man</option><option>Non-binary</option></select>
+          </label>
+          <label>Hairstyle
+            <select name="hair"><option>Sleek low bun</option><option>Short textured</option><option>Long tied back</option><option>Sharp bob</option></select>
+          </label>
+          <label>Outfit
+            <select name="outfit">
+              <option>50% tuxedo / 50% wetsuit hybrid</option>
+              <option>Tuxedo</option>
+              <option>Tailored suit and dress shoes</option>
+              <option>Metallic leather suit with black accents</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" name="visor" checked /> Opaque high-tech AR sunglasses</label>
+          <button>Start tutorial</button>
+        </div>
+        <div class="avatar-card card">
+          <div id="avatar" class="avatar hybrid visor"><span class="badge">00?</span></div>
+          <p id="avatarCaption">Preview updates after you start.</p>
+        </div>
+      </form>
+    </section>
+
+    <section id="game" class="hidden">
+      <div class="hud panel">
+        <div><strong id="agentName">Agent</strong><span id="rank">New Agent</span></div>
+        <div>Credits <strong id="credits">250</strong></div>
+        <div>Weapon <strong id="weapon">Training pistol</strong></div>
+        <button id="logout">Log out</button>
+      </div>
+
+      <section class="world panel">
+        <div id="stage" class="stage briefing">
+          <div class="location-plate"><strong id="locationName">Aether HQ Briefing Suite</strong></div>
+          <div id="stageEntities"></div>
+          <div id="player" class="player"><span>You</span></div>
+          <p id="worldCaption" class="world-caption">Use WASD, arrow keys, or the move buttons to explore.</p>
+          <div class="move-pad" aria-label="Movement controls">
+            <button data-move="0,-4">↑</button>
+            <button data-move="-4,0">←</button>
+            <button data-move="4,0">→</button>
+            <button data-move="0,4">↓</button>
+          </div>
+        </div>
+        <aside class="mission-log card">
+          <h2>Guided tutorial</h2>
+          <p id="dialogue"></p>
+          <button id="stepAction">Perform step action</button>
+          <button id="nextStep">Continue without action</button>
+          <button id="freeRoam" class="ghost">Skip to free roam</button>
+        </aside>
+      </section>
+
+      <section class="panel grid three">
+        <div class="card"><h3>Explore</h3><p>Visit HQ, harbor promenade, museum lobby, cafe arcade, and marina garage.</p><button data-action="explore">Change area</button></div>
+        <div class="card"><h3>Combat mini-game</h3><p>Player agent versus Yuna Bond 003, Dae Park, and red-suited Ren Sato 008.</p><button data-action="combat">Start match</button></div>
+        <div class="card"><h3>Inventory</h3><p>Obtain weapons, vehicles, and occasional gadgets.</p><button data-action="loot">Collect gear</button></div>
+      </section>
+      <section class="panel chat">
+        <h2>Agent network</h2>
+        <div id="chatLog"></div>
+        <button data-talk="yuna">Talk to Yuna</button>
+        <button data-talk="dae">Talk to Dae</button>
+        <button data-talk="ren">Talk to Ren</button>
+      </section>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
